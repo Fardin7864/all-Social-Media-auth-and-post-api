@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "public/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/auth",
+      "dest": "/app.js"
+    },
+    {
+      "src": "/",
+      "dest": "/app.js"
+    },
+    {
+      "src": "/post",
+      "dest": "/app.js"
+    }
+  ],
+  "env": {
+    "TOC_CLIENT_ID": "aw8qpdtvf1dnzjfg",
+    "TOC_CLIENT_SECRET": "5a06UfxVMkSemV04k6oSuQHZVspZH4F0",
+    "TOC_REDIRECT_URI": "https://everyone.tmmadevs.xyz",
+    "JWT_SECRET": "@secret"
+  }
+}
+  
