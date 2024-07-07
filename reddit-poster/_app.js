@@ -2,8 +2,6 @@ const express = require('express');
 const axios = require('axios');
 const qs = require('querystring');
 const dotenv = require('dotenv');
-const multer = require('multer');
-const path = require('path');
 dotenv.config();
 
 const app = express();
@@ -15,17 +13,6 @@ app.use(express.urlencoded({ extended: true }));
 
 // Set up the view engine to use EJS
 app.set('view engine', 'ejs');
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
-    }
-});
-const upload = multer({ storage });
 
 // Replace these with your Reddit app details
 const clientId = process.env.REDDIT_CLIENT_ID;
@@ -52,6 +39,7 @@ app.get('/login', (req, res) => {
 // Route to handle Reddit callback
 app.get('/callback', async (req, res) => {
     const { code } = req.query;
+
     const tokenUrl = 'https://www.reddit.com/api/v1/access_token';
     const auth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
 
@@ -74,59 +62,26 @@ app.get('/callback', async (req, res) => {
     }
 });
 
+// Route to handle post creation
 app.post('/post', async (req, res) => {
-    const { title, content, url } = req.body;
+    const { title, content } = req.body;
 
     try {
-        // Determine the type of post based on presence of content or url
-        const kind = url ? 'link' : 'self';
-        const postData = {
+        const response = await axios.post('https://oauth.reddit.com/api/submit', qs.stringify({
             sr: 'test', // Replace 'test' with the subreddit you want to post to
-            kind: kind,
+            kind: 'self',
             title: title,
-        };
-
-        if (kind === 'self') {
-            postData.text = content;
-        } else {
-            postData.url = url;
-        }
-
-        const response = await axios.post('https://oauth.reddit.com/api/submit', qs.stringify(postData), {
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        });
-        
-        console.log(response.data);
-        res.send('Post created successfully!');
-    } catch (error) {
-        res.send('Error creating post: ' + error.message);
-    }
-});
-
-// Route to handle post creation (image)
-app.post('/post-image', upload.single('image'), async (req, res) => {
-    const { title } = req.body;
-    const imagePath = req.file.path;
-
-    try {
-        const imageUploadResponse = await axios.post('https://oauth.reddit.com/api/submit', qs.stringify({
-            sr: 'test', // Replace 'test' with the subreddit you want to post to
-            kind: 'image',
-            title: title,
-            url: `http://localhost:${port}/${imagePath}` // Assuming you will serve the image from your server
+            text: content
         }), {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         });
-        console.log(imageUploadResponse.data);
-        res.send('Image post created successfully!');
+        console.log(response.data)
+        res.send('Post created successfully!');
     } catch (error) {
-        res.send('Error creating image post: ' + error.message);
+        res.send('Error creating post: ' + error.message);
     }
 });
 

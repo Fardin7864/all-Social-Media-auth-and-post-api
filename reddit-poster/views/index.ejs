@@ -1,24 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Reddit Poster</title>
+    <title>Reddit Post</title>
 </head>
 <body>
-    <h1>Reddit Poster</h1>
-    <% if (!accessToken) { %>
-        <a href="/login">Login with Reddit</a>
-    <% } else { %>
-        <form action="/post" method="POST">
-            <div>
-                <label for="title">Title:</label>
-                <input type="text" id="title" name="title" required>
-            </div>
-            <div>
-                <label for="content">Content:</label>
-                <textarea id="content" name="content" required></textarea>
-            </div>
-            <button type="submit">Create Post</button>
-        </form>
-    <% } %>
+    <h1>Post to Reddit</h1>
+    
+    <!-- Form for text post -->
+    <form action="/post" method="POST">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title"><br>
+        <label for="url">Content:</label><br>
+        <textarea id="url" name="url"></textarea><br>
+        <input type="submit" value="Submit Text Post">
+    </form>
+    
+    <!-- Form for image post -->
+    <form action="/post-image" method="POST" enctype="multipart/form-data">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title"><br>
+        <label for="image">Image:</label><br>
+        <input type="file" id="image" name="image"><br>
+        <input type="submit" value="Submit Image Post">
+    </form>
 </body>
 </html>
